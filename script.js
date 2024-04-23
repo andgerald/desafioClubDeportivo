@@ -4,6 +4,10 @@ const _ = require("lodash");
 const fs = require("fs");
 const PORT = 3000;
 
+//ruta raiz
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
+});
 app.get("/agregar", (req, res) => {
   const { nombre, precio } = req.query;
   const club = { nombre, precio };
@@ -28,6 +32,23 @@ app.get("/agregar", (req, res) => {
   nuevoClub.push(club);
   fs.writeFileSync("nuevoClub.json", JSON.stringify({ nuevoClub }));
   res.status(200).send("Club agregado con exito!");
+});
+
+app.get("/deportes", (req, res) => {
+  const { nuevoClub } = JSON.parse(fs.readFileSync("nuevoClub.json", "utf8"));
+  const deportes = _.map(nuevoClub, "nombre");
+  res.send(deportes);
+});
+
+//listamos los nombres de todos los deportes
+app.get("/deportes", (req, res) => {
+  const { nuevoClub } = JSON.parse(fs.readFileSync("nuevoClub.json", "utf8"));
+  const deportes = _.map(nuevoClub, "nombre");
+  res.send(deportes);
+});
+
+app.get("*", (req, res) => {
+  res.status(500).send(`La ruta ${req.originalUrl} no existe `);
 });
 
 app.listen(PORT, () => {
