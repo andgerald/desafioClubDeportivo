@@ -41,7 +41,7 @@ app.get("/deportes", (req, res) => {
   res.send(deportes);
 });
 
-//listamos los nombres de todos los deportes
+//ruta para editar
 app.get("/editar", (req, res) => {
   const { nombre, nuevoNombre } = req.query;
   const { nuevoClub } = JSON.parse(fs.readFileSync("nuevoClub.json", "utf8"));
@@ -56,6 +56,7 @@ app.get("/editar", (req, res) => {
   // Buscar el club por su nombre
   const nombreIndex = _.findIndex(nuevoClub, { nombre });
   console.log(nombreIndex);
+
   //verificamos que el nombre ingresado se encuentre en el json
   if (nombreIndex === -1) {
     return res
@@ -70,6 +71,30 @@ app.get("/editar", (req, res) => {
     .send(
       `El club ${nombre} ha sido editado exitosamente. Nuevo nombre: ${nuevoNombre}`
     );
+});
+
+app.get("/eliminar/:nombre", (req, res) => {
+  const nombre = req.params.nombre;
+  const { nuevoClub } = JSON.parse(fs.readFileSync("nuevoClub.json", "utf8"));
+
+  //verificamos que esten ingreando el nombre
+  if (!nombre) {
+    return res.status(400).send("Debes ingresar el nombre a eliminar");
+  }
+  // Buscar el club por su nombre
+  const buscar = _.findIndex(nuevoClub, { nombre });
+
+  //verificamos que el nombre ingresado se encuentre en el json si no se encuentra arroja el error
+  if (buscar === -1) {
+    return res
+      .status(404)
+      .send(`No se encontró ningún club con el nombre ${nombre}.`);
+  }
+
+  //si el nombre esta en el json, eliminamos nombre segun la posicion de buscar
+  nuevoClub.splice(buscar, 1);
+  fs.writeFileSync("nuevoClub.json", JSON.stringify({ nuevoClub }));
+  res.status(200).send(`El club ${nombre} ha sido elimado con exito`);
 });
 
 app.get("*", (req, res) => {

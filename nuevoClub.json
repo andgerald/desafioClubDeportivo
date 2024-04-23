@@ -1,0 +1,6 @@
+{
+  "nuevoClub": [
+    { "nombre": "padel", "precio": "20000" },
+    { "nombre": "futbol", "precio": "10000" }
+  ]
+}
