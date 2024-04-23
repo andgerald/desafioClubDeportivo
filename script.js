@@ -34,6 +34,7 @@ app.get("/agregar", (req, res) => {
   res.status(200).send("Club agregado con exito!");
 });
 
+//listamos los nombres de todos los deportes
 app.get("/deportes", (req, res) => {
   const { nuevoClub } = JSON.parse(fs.readFileSync("nuevoClub.json", "utf8"));
   const deportes = _.map(nuevoClub, "nombre");
@@ -41,10 +42,34 @@ app.get("/deportes", (req, res) => {
 });
 
 //listamos los nombres de todos los deportes
-app.get("/deportes", (req, res) => {
+app.get("/editar", (req, res) => {
+  const { nombre, nuevoNombre } = req.query;
   const { nuevoClub } = JSON.parse(fs.readFileSync("nuevoClub.json", "utf8"));
-  const deportes = _.map(nuevoClub, "nombre");
-  res.send(deportes);
+
+  //verificamos que se pasen los dos parametros
+  if (!nombre || !nuevoNombre) {
+    return res
+      .status(400)
+      .send("Debes ingresar el nombre a editar y el nuevo nombre.");
+  }
+
+  // Buscar el club por su nombre
+  const nombreIndex = _.findIndex(nuevoClub, { nombre });
+  console.log(nombreIndex);
+  //verificamos que el nombre ingresado se encuentre en el json
+  if (nombreIndex === -1) {
+    return res
+      .status(404)
+      .send(`No se encontró ningún club con el nombre ${nombre}.`);
+  }
+  //si el nombre esta en el json, editamos el nombre segun la posicion del nombreIndex
+  nuevoClub[nombreIndex].nombre = nuevoNombre;
+  fs.writeFileSync("nuevoClub.json", JSON.stringify({ nuevoClub }));
+  res
+    .status(200)
+    .send(
+      `El club ${nombre} ha sido editado exitosamente. Nuevo nombre: ${nuevoNombre}`
+    );
 });
 
 app.get("*", (req, res) => {
